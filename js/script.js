@@ -6,13 +6,12 @@ window.addEventListener('DOMContentLoaded', function() {
         areaStringCount = 10, //количество строк
         areaCellCount = 10, //количество ячеек
         n = 0, //счетчик шагов
-        k = 0, //счетчик убранных шариков за 1 раз
+        k, //счетчик убранных шариков за 1 раз
         score = 0; //очки
 
 
     function initializationGame() {
-        
-        ////сoздание строк и ячеек в них, присваивание id
+        //сoздание строк и ячеек в них, присваивание id
         for (let a = 0; a < areaStringCount; a++) {
             let string = document.createElement('tr');
 
@@ -27,8 +26,6 @@ window.addEventListener('DOMContentLoaded', function() {
                 string.appendChild(cell);
             }
         }
-
-        createBalls();
     }
 
 
@@ -38,23 +35,21 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    //то что происходит при клике на рандомный шар
+    //то что происходит при клике на шар
     function clickBall(){
-        console.log('==========');
         
         let target = event.target;
 
-            target = target.parentElement; //если таргет на шарике, таргетом считать его родителя (ячейку), которой ниже присвоится id
+        target = target.parentElement; //если таргет на шарике, таргетом считать его родителя (ячейку), которой ниже присвоится id
 
         let BallIdClick = [target.id],
             BallColorClick = target.getElementsByTagName('div')[0].className;
-            //n++;
 
         //счетчик вызовов функции checkNeighbors, чтобы удалять шарик не сразу при клике, а после проверки соседей
         let m = 0;
-        k = 0;
+        k = 0; //обнуление счетчика убранных за 1 раз шариков
         
-        removeBallsChain(BallIdClick, BallColorClick, m);
+        removeBallsChain(BallIdClick, BallColorClick, m); //удаление цепочки шаров
 
         //console.log('количество шагов = ' + n);
         
@@ -69,88 +64,58 @@ window.addEventListener('DOMContentLoaded', function() {
             // console.log('количество убранных шариков = ' + k);
             // console.log('очки = ' + score);
         }
-        //табло с подсчетом шагов и очков
-        scoreboard();
-
-        //openModal();
+        scoreboard(); //табло с подсчетом шагов и очков
         
-        createBalls();
+        createBalls(); //создание новых шарикоф
 
         //проверка шариков на наличие соседей. если одинаковых шариков в таблице нет, вывести сообщение о победе
         let cells = document.querySelectorAll('.area__cell'),
-            neighbours = []; //массив с id соседей с цветом таргета
-
+            cellNeighbours;
+            
         for (let h = 0; h < cells.length-1; h++) {
-
-            let arr = cells[h].id.split('_'); //убран разделитель "_", получился массив из 2 элементов id — ["4", "5"], с индексами 0 и 1
-                //console.log('arr split = ' + arr);
-
-            //переменные, содержащие id соседних ячеек. Унарный + (+arr) для преобразования строки в число
-            let leftElemId = [ +arr[0] - 1 , (+arr[1]) ],
-                rightElemId = [ +arr[0] + 1 , (+arr[1]) ],
-                topElemId = [ +arr[0] , (+arr[1] - 1) ],
-                bottomElemId = [ +arr[0] , (+arr[1] + 1) ],
-                elemId = [leftElemId, rightElemId, topElemId, bottomElemId];
-
-            //сбор соседей в массив
-            for (let e = 0; e < elemId.length; e++) {
-                    //проверка ячеек id, ячейка должна находится в таблице (по выбранному в условии диапазону, не выходить за пределы таблицы)
-                if (((elemId[e][0] >= 0) && (elemId[e][0] <= (areaCellCount - 1))) && ((elemId[e][1] >= 0) && (elemId[e][1] <= (areaStringCount - 1)))) {                        
-                    
-                    let neighboursId = [ elemId[e][0] + '_' + elemId[e][1]]; //перевод id в строковое значение
-
-                    //если шарик есть (не убран) и подходит по цвету добавляем его в массив соседей
-                    if (document.getElementById(neighboursId).getElementsByTagName('div')[0] != null) {
-                        let neighboursColor = document.getElementById(neighboursId).getElementsByTagName('div')[0].className;
-
-                        if (neighboursColor == cells[h].getElementsByTagName('div')[0].className) {
-                            neighbours.push( neighboursId );
-                        }
-                    }  
-                }
-            }
+            //собранные в getNeighbours() соседи
+            cellNeighbours = getNeighbours(cells[h].id);
             //если соседи существуют остановить дальнейший цикл проверки наличия соседей
-            if (neighbours.length > 0) {
+            if (cellNeighbours.length > 0) {
                 break;
             }
         }
         //условие вывода модального окна об окончании игры
-        if (neighbours.length == 0) {
+        if (cellNeighbours.length == 0) {
             openModal();
         }
     }
 
-    //сбор соседей
-    function gatheringNeighbors() {
-        let arr = BallIdClick[h].split('_'); //убран разделитель "_", получился массив из 2 элементов id — ["4", "5"], с индексами 0 и 1
 
+    //сбор соседей
+    function getNeighbours(cellId) {
+
+        let arr = cellId.split('_'), //убран разделитель "_", получился массив из 2 элементов id — ["4", "5"], с индексами 0 и 1
+            neighbours = []; //массив с id соседей с цветом таргета
+            
         //переменные, содержащие id соседних ячеек. Унарный + (+arr) для преобразования строки в число
         let leftElemId = [ +arr[0] - 1 , (+arr[1]) ],
             rightElemId = [ +arr[0] + 1 , (+arr[1]) ],
             topElemId = [ +arr[0] , (+arr[1] - 1) ],
             bottomElemId = [ +arr[0] , (+arr[1] + 1) ],
             elemId = [leftElemId, rightElemId, topElemId, bottomElemId];
-    
-        let neighbours = []; //массив с id соседей с цветом таргета
-    
+
         //сбор соседей в массив
         for (let e = 0; e < elemId.length; e++) {
-                //проверка ячеек id, ячейка должна находится в таблице (по выбранному в условии диапазону)
+                //проверка ячеек id, ячейка должна находится в таблице (по выбранному в условии диапазону, не выходить за пределы таблицы)
             if (((elemId[e][0] >= 0) && (elemId[e][0] <= (areaCellCount - 1))) && ((elemId[e][1] >= 0) && (elemId[e][1] <= (areaStringCount - 1)))) {                        
                 
-                let neighboursId = [ elemId[e][0] + '_' + elemId[e][1]];
-    
-                //если шарик есть (не убран)
+                let neighboursId = [ elemId[e][0] + '_' + elemId[e][1]]; //перевод id в строковое значение
+                //если шарик есть (не убран) и подходит по цвету добавляем его в массив соседей
                 if (document.getElementById(neighboursId).getElementsByTagName('div')[0] != null) {
                     let neighboursColor = document.getElementById(neighboursId).getElementsByTagName('div')[0].className;
-    
-                    if (neighboursColor == BallColorClick) {
-                        //console.log('      neighbour: "' + neighboursId + '"');
+                    if (neighboursColor == document.getElementById(cellId).getElementsByTagName('div')[0].className) {
                         neighbours.push( neighboursId );
                     }
                 }  
             }
         }
+       return neighbours;
     }
         
 
@@ -162,7 +127,9 @@ window.addEventListener('DOMContentLoaded', function() {
            
             //если шарик еще не удален, то выполнить действия... решена проблема, если у двух шариков один и тот же сосед (происходит, когда шарики встают квадратом)
             if (document.getElementById(BallIdClick[h]).getElementsByTagName('div')[0] != null) {
-                
+                //собранные в getNeighbours соседи 
+                let cellNeighbours = getNeighbours(BallIdClick[h], BallColorClick);
+
                 //если функция вызывается не первый раз, то удаляем шарик, т.е. при первом клике шарик не удаляется и функция проверяет его соседей, находит его же
                 if (m > 0) {
                     document.getElementById(BallIdClick[h]).removeChild(document.getElementById(BallIdClick[h]).getElementsByTagName('div')[0]); //исчезает шарик, id которого передан в функцию
@@ -173,48 +140,16 @@ window.addEventListener('DOMContentLoaded', function() {
                 if (m == 1) {
                     n++;
                 }
-
-                gatheringNeighbors();
-
-                // let arr = BallIdClick[h].split('_'); //убран разделитель "_", получился массив из 2 элементов id — ["4", "5"], с индексами 0 и 1
-
-                // //переменные, содержащие id соседних ячеек. Унарный + (+arr) для преобразования строки в число
-                // let leftElemId = [ +arr[0] - 1 , (+arr[1]) ],
-                //     rightElemId = [ +arr[0] + 1 , (+arr[1]) ],
-                //     topElemId = [ +arr[0] , (+arr[1] - 1) ],
-                //     bottomElemId = [ +arr[0] , (+arr[1] + 1) ],
-                //     elemId = [leftElemId, rightElemId, topElemId, bottomElemId];
-            
-                // let neighbours = []; //массив с id соседей с цветом таргета
-
-                // //сбор соседей в массив
-                // for (let e = 0; e < elemId.length; e++) {
-                //         //проверка ячеек id, ячейка должна находится в таблице (по выбранному в условии диапазону)
-                //     if (((elemId[e][0] >= 0) && (elemId[e][0] <= (areaCellCount - 1))) && ((elemId[e][1] >= 0) && (elemId[e][1] <= (areaStringCount - 1)))) {                        
-                        
-                //         let neighboursId = [ elemId[e][0] + '_' + elemId[e][1]];
-
-                //         //если шарик есть (не убран)
-                //         if (document.getElementById(neighboursId).getElementsByTagName('div')[0] != null) {
-                //             let neighboursColor = document.getElementById(neighboursId).getElementsByTagName('div')[0].className;
-
-                //             if (neighboursColor == BallColorClick) {
-                //                 //console.log('      neighbour: "' + neighboursId + '"');
-                //                 neighbours.push( neighboursId );
-                //             }
-                //         }  
-                //     }
-                // }
             
                 //если соседи существуют (длина соседей для данной ячейки)
-                if (neighbours.length != 0) {
+                if (cellNeighbours.length != 0) {
 
                     //перевод массива с id  в строчное значение
                     let neig = '',
                         neigArr = [];
 
-                    for (let f = 0; f < neighbours.length; f++) {
-                        neig = String(neighbours[f]);
+                    for (let f = 0; f < cellNeighbours.length; f++) {
+                        neig = String(cellNeighbours[f]);
                         neigArr.push(neig);
                     }
                     
@@ -229,7 +164,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
     function createBalls() {
 
-        //initializationGame();
         for (let a = 0; a < areaStringCount; a++) {
 
             for (let b = 0; b < areaCellCount; b++) {
@@ -262,6 +196,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+
     function openModal() {
         modal.style.display = "block";
         overlay.style.display = "block";
@@ -271,6 +206,7 @@ window.addEventListener('DOMContentLoaded', function() {
             location.href = 'http://127.0.0.1:5500/';
         };
     }
+
 
     //вывод подсчета шагов и очков в табло
     function scoreboard() {
@@ -283,4 +219,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
     initializationGame();
+    
+
+    createBalls();
+
 });
