@@ -12,7 +12,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
     function initializationGame() {
         
-        //добавление ячеек и строк в таблицу
+        ////сoздание строк и ячеек в них, присваивание id
         for (let a = 0; a < areaStringCount; a++) {
             let string = document.createElement('tr');
 
