@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap-reboot.min.css">
+    <link rel="stylesheet" href="css/bootstrap-grid.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Собери шарики</h1>
+    <section class="play-area">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <table class="area"></table>
+            </div>
+
+            <aside class="side">
+                <h2 class="h2">Количество шагов: <p class="steps">0</p></h2>
+                <h3 class="h3">Очки:<p class="points">0</p></h3>
+            </aside>
+        </div>
+    </section>
+
+    <section class="overlay" id="overlay">
+        <div class="modal" id="modal">
+            <h2 class="modal__title">Игра окончена!!!</h2>
+            <!-- <img class="modal__gif" src="/gif/1410010_e1288.gif"> -->
+            <button type="submit" class="modal__button" id="btn">OK</button>
+        </div>
+    </section>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

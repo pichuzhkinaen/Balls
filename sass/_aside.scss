@@ -1,0 +1,18 @@
+.side {
+    position: absolute;
+    width: 250px;
+    height: 180px;
+    background-color: #B9ECF4;
+    border: 1px solid;
+    border-color: green;
+    right: 200px;
+    .h2 {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 20px;
+    }
+    .h3 {
+        text-align: center;
+        margin-top: 15px;
+    }
+}
